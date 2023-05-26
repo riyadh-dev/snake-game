@@ -1,4 +1,12 @@
-import { Component, For, Show, createEffect, createSignal } from 'solid-js';
+import {
+	Component,
+	For,
+	Show,
+	createEffect,
+	createSignal,
+	onCleanup,
+	onMount,
+} from 'solid-js';
 import { Portal } from 'solid-js/web';
 
 const App: Component = () => {
@@ -18,6 +26,8 @@ const App: Component = () => {
 		x: getRandomInt(1, 30),
 		y: getRandomInt(1, 30),
 	});
+
+	const [isPaused, setIsPaused] = createSignal(false);
 
 	const changeDirection = (e: KeyboardEvent) => {
 		if (e.key === 'ArrowUp' && speed().y !== 1) setSpeed({ x: 0, y: -1 });
@@ -43,9 +53,10 @@ const App: Component = () => {
 		setScore(0);
 	};
 
-	const gameLogicTick = () =>
+	//game logic
+	createEffect(() =>
 		setInterval(() => {
-			if (gameOver()) return;
+			if (gameOver() || isPaused()) return;
 			//snake ate food
 			if (snake()[0].x === food().x && snake()[0].y === food().y) {
 				setSnake([
@@ -94,18 +105,26 @@ const App: Component = () => {
 				//slice snake last element to remove the tail
 				...snake().slice(0, -1),
 			]);
-		}, 150);
+		}, 150)
+	);
 
-	createEffect(() => {
-		gameLogicTick();
+	const pauseGame = () => setIsPaused(true);
+	const resumeGame = () => setIsPaused(false);
+
+	onMount(() => {
+		document.addEventListener('keyup', changeDirection);
+		window.addEventListener('focus', resumeGame);
+		window.addEventListener('blur', pauseGame);
+
+		onCleanup(() => {
+			document.removeEventListener('keyup', changeDirection);
+			window.removeEventListener('focus', resumeGame);
+			window.removeEventListener('blur', pauseGame);
+		});
 	});
 
 	return (
-		<main
-			class='h-screen w-screen grid place-items-center text-gray-300'
-			tabindex={0}
-			onKeyUp={changeDirection}
-		>
+		<main class='h-screen w-screen grid place-items-center text-gray-300'>
 			<div class='w-[calc(100vh-20px)] rounded flex flex-col overflow-hidden'>
 				<div class='bg-slate-800 h-20 flex px-5 items-center justify-between text-xl font-semibold'>
 					<h1>Score: {score()}</h1>
@@ -129,7 +148,7 @@ const App: Component = () => {
 			<Show when={gameOver()}>
 				<Portal>
 					<div class='z-10 bg-black/75 w-screen h-screen absolute top-0 left-0' />
-					<div class='z-20 rounded bg-slate-900 p-5 opacity-100 text-gray-300 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 space-y-4'>
+					<div class='z-20 rounded bg-slate-800 p-5 opacity-100 text-gray-300 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 space-y-4'>
 						<h1 class='text-2xl font-semibold'>Game Over</h1>
 						<button
 							onClick={handleRestartGame}
@@ -137,6 +156,17 @@ const App: Component = () => {
 						>
 							Restart
 						</button>
+					</div>
+				</Portal>
+			</Show>
+			<Show when={isPaused() && !gameOver()}>
+				<Portal>
+					<div class='z-10 bg-black/75 w-screen h-screen absolute top-0 left-0' />
+					<div class='z-20 rounded bg-slate-800 p-5 opacity-100 text-gray-300 absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 space-y-4'>
+						<h1 class='text-2xl font-bold text-center'>Game Paused</h1>
+						<h1 class='text-xl font-semibold'>
+							Click or touch the window to continue
+						</h1>
 					</div>
 				</Portal>
 			</Show>

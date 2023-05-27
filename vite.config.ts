@@ -1,12 +1,13 @@
 import { defineConfig } from 'vite';
+import { VitePWA } from 'vite-plugin-pwa';
 import solidPlugin from 'vite-plugin-solid';
 
 export default defineConfig({
-  plugins: [solidPlugin()],
-  server: {
-    port: 3000,
-  },
-  build: {
-    target: 'esnext',
-  },
+	plugins: [solidPlugin(), VitePWA({ registerType: 'autoUpdate' })],
+	server: {
+		port: 3000,
+	},
+	build: {
+		target: 'esnext',
+	},
 });

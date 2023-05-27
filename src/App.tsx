@@ -9,6 +9,10 @@ import {
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
+const TICK_RATE_MS = 200;
+const COLS_NUM = 30;
+const ROWS_NUM = 30;
+
 const App: Component = () => {
 	const [gameOver, setGameOver] = createSignal(false);
 
@@ -18,13 +22,13 @@ const App: Component = () => {
 	const [speed, setSpeed] = createSignal({ x: 0, y: 0 });
 	const [snake, setSnake] = createSignal([
 		{
-			x: getRandomInt(1, 30),
-			y: getRandomInt(1, 30),
+			x: getRandomInt(1, COLS_NUM),
+			y: getRandomInt(1, ROWS_NUM),
 		},
 	]);
 	const [food, setFood] = createSignal({
-		x: getRandomInt(1, 30),
-		y: getRandomInt(1, 30),
+		x: getRandomInt(1, COLS_NUM),
+		y: getRandomInt(1, ROWS_NUM),
 	});
 
 	const [isPaused, setIsPaused] = createSignal(false);
@@ -39,16 +43,29 @@ const App: Component = () => {
 			setSpeed({ x: 1, y: 0 });
 	};
 
+	const changeDirectionUp = () => {
+		if (speed().y !== 1) setSpeed({ x: 0, y: -1 });
+	};
+	const changeDirectionDown = () => {
+		if (speed().y !== -1) setSpeed({ x: 0, y: 1 });
+	};
+	const changeDirectionLeft = () => {
+		if (speed().x !== 1) setSpeed({ x: -1, y: 0 });
+	};
+	const changeDirectionRight = () => {
+		if (speed().x !== -1) setSpeed({ x: 1, y: 0 });
+	};
+
 	const changeFoodPosition = () => {
-		const x = getRandomInt(1, 30);
-		const y = getRandomInt(1, 30);
+		const x = getRandomInt(1, COLS_NUM);
+		const y = getRandomInt(1, ROWS_NUM);
 		setFood({ x, y });
 	};
 
 	const handleRestartGame = () => {
 		setGameOver(false);
-		setSnake([{ x: getRandomInt(1, 30), y: getRandomInt(1, 30) }]);
-		setFood({ x: getRandomInt(1, 30), y: getRandomInt(1, 30) });
+		setSnake([{ x: getRandomInt(1, COLS_NUM), y: getRandomInt(1, ROWS_NUM) }]);
+		setFood({ x: getRandomInt(1, COLS_NUM), y: getRandomInt(1, ROWS_NUM) });
 		setSpeed({ x: 0, y: 0 });
 		setScore(0);
 	};
@@ -77,9 +94,9 @@ const App: Component = () => {
 			//snake hit a wall
 			if (
 				snakeHeadX < 1 ||
-				snakeHeadX > 30 ||
+				snakeHeadX > COLS_NUM ||
 				snakeHeadY < 1 ||
-				snakeHeadY > 30
+				snakeHeadY > ROWS_NUM
 			) {
 				setGameOver(true);
 				return;
@@ -105,7 +122,7 @@ const App: Component = () => {
 				//slice snake last element to remove the tail
 				...snake().slice(0, -1),
 			]);
-		}, 150)
+		}, TICK_RATE_MS)
 	);
 
 	const pauseGame = () => setIsPaused(true);
@@ -124,27 +141,53 @@ const App: Component = () => {
 	});
 
 	return (
-		<main class='h-screen w-screen grid place-items-center text-gray-300'>
-			<div class='w-[calc(100vh-20px)] rounded flex flex-col overflow-hidden'>
-				<div class='bg-slate-800 h-20 flex px-5 items-center justify-between text-xl font-semibold'>
-					<h1>Score: {score()}</h1>
-					<h1>highest Score: {highestScore()}</h1>
+		<main class='h-screen w-screen grid place-items-center text-gray-300 bg-slate-950'>
+			<div class='w-[100vw] md:w-[calc(100vh-20px)] rounded flex flex-col overflow-hidden'>
+				<div class='bg-slate-800 h-20 flex px-5 items-center justify-between text-xl font-semibold relative'>
+					<h1 class='max-md:hidden'>Score: {score()}</h1>
+					<img
+						src='src/favicon.ico'
+						alt='logo'
+						class='absolute translate-x-1/2 translate-y-1/2 bottom-1/2 right-1/2'
+					/>
+					<h1 class='max-md:hidden'>highest Score: {highestScore()}</h1>
 				</div>
-				<div class='bg-slate-900 h-[calc(100vh-80px-20px)] grid grid-cols-[repeat(30,1fr)] grid-rows-[repeat(30,1fr)]'>
+				<div class='bg-slate-900 h-[100vw] md:h-[calc(100vh-80px-20px)] grid grid-cols-[repeat(30,1fr)] grid-rows-[repeat(30,1fr)]'>
 					<div
-						style={`grid-area: ${food().y} / ${food().x}`}
-						class='bg-red-800 rounded-full'
+						style={{ 'grid-area': `${food().y} / ${food().x}` }}
+						class='bg-green-700 rounded-full'
 					/>
 					<For each={snake()}>
 						{(snakeSegment) => (
 							<div
-								style={`grid-area: ${snakeSegment.y} / ${snakeSegment.x}`}
-								class='bg-violet-800'
+								style={{ 'grid-area': `${snakeSegment.y} / ${snakeSegment.x}` }}
+								class='bg-orange-700'
 							/>
 						)}
 					</For>
 				</div>
+				<div class='bg-slate-800 h-14 grid grid-cols-4 md:hidden'>
+					<button onClick={changeDirectionUp} class='border-r border-gray-400'>
+						Up
+					</button>
+					<button
+						onClick={changeDirectionDown}
+						class='border-r border-gray-400'
+					>
+						Down
+					</button>
+					<button
+						onClick={changeDirectionLeft}
+						class='border-r border-gray-400'
+					>
+						Left
+					</button>
+					<button onClick={changeDirectionRight} class=''>
+						Right
+					</button>
+				</div>
 			</div>
+
 			<Show when={gameOver()}>
 				<Portal>
 					<div class='z-10 bg-black/75 w-screen h-screen absolute top-0 left-0' />

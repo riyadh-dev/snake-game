@@ -1,12 +1,12 @@
 {
-	"name": "vite-template-solid",
-	"version": "0.0.0",
+	"name": "snake-game",
+	"version": "0.1.0",
 	"description": "",
 	"scripts": {
 		"dev": "vite",
 		"build": "vite build",
 		"serve": "vite preview",
-		"build:gh-pages": "vite build --base=https://riyadh-dev.github.io/portfolio/",
+		"build:gh-pages": "vite build --base=https://riyadh-dev.github.io/snake-game/",
 		"deploy:gh-pages": "gh-pages -d dist",
 		"deploy": "pnpm build:gh-pages && pnpm deploy:gh-pages",
 		"lint": "eslint --fix --max-warnings 0 --cache *.{ts,tsx}",

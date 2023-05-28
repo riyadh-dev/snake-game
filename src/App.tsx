@@ -9,15 +9,17 @@ import {
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
-const TICK_RATE_MS = 200;
+const TICK_RATE_MS = 150;
 const COLS_NUM = 30;
 const ROWS_NUM = 30;
 
 const App: Component = () => {
 	const [gameOver, setGameOver] = createSignal(false);
 
-	const [highestScore, setHighestScore] = createSignal(0);
 	const [score, setScore] = createSignal(0);
+	const [highestScore, setHighestScore] = createSignal(
+		Number(localStorage.getItem('highestScore')) || 0
+	);
 
 	const [speed, setSpeed] = createSignal({ x: 0, y: 0 });
 	const [snake, setSnake] = createSignal([
@@ -124,6 +126,10 @@ const App: Component = () => {
 			]);
 		}, TICK_RATE_MS)
 	);
+
+	createEffect(() => {
+		localStorage.setItem('highestScore', highestScore().toString());
+	});
 
 	const pauseGame = () => setIsPaused(true);
 	const resumeGame = () => setIsPaused(false);

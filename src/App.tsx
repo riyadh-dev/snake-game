@@ -9,7 +9,7 @@ import {
 } from 'solid-js';
 import { Portal } from 'solid-js/web';
 
-const TICK_RATE_MS = 150;
+const TICK_RATE_MS = 100;
 const COLS_NUM = 30;
 const ROWS_NUM = 30;
 
@@ -18,7 +18,7 @@ const App: Component = () => {
 
 	const [score, setScore] = createSignal(0);
 	const [highestScore, setHighestScore] = createSignal(
-		Number(localStorage.getItem('highestScore')) || 0
+		Number(localStorage.getItem('highestScore')) ?? 0,
 	);
 
 	const [speed, setSpeed] = createSignal({ x: 0, y: 0 });
@@ -66,10 +66,19 @@ const App: Component = () => {
 
 	const handleRestartGame = () => {
 		setGameOver(false);
-		setSnake([{ x: getRandomInt(1, COLS_NUM), y: getRandomInt(1, ROWS_NUM) }]);
-		setFood({ x: getRandomInt(1, COLS_NUM), y: getRandomInt(1, ROWS_NUM) });
 		setSpeed({ x: 0, y: 0 });
 		setScore(0);
+
+		setSnake([
+			{
+				x: getRandomInt(1, COLS_NUM),
+				y: getRandomInt(1, ROWS_NUM),
+			},
+		]);
+		setFood({
+			x: getRandomInt(1, COLS_NUM),
+			y: getRandomInt(1, ROWS_NUM),
+		});
 	};
 
 	//game logic
@@ -124,7 +133,7 @@ const App: Component = () => {
 				//slice snake last element to remove the tail
 				...snake().slice(0, -1),
 			]);
-		}, TICK_RATE_MS)
+		}, TICK_RATE_MS),
 	);
 
 	createEffect(() => {
@@ -152,7 +161,7 @@ const App: Component = () => {
 				<div class='bg-slate-800 h-20 flex px-5 items-center justify-between text-xl font-semibold relative'>
 					<h1 class='max-md:hidden'>Score: {score()}</h1>
 					<img
-						src='src/favicon.ico'
+						src='https://raw.githubusercontent.com/riyadh-dev/snake-game/gh-pages/assets/favicon-e36dfbef.ico'
 						alt='logo'
 						class='absolute translate-x-1/2 translate-y-1/2 bottom-1/2 right-1/2'
 					/>

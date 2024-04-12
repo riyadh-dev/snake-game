@@ -12,8 +12,7 @@
 		"deploy": "pnpm build:gh-pages && pnpm deploy:gh-pages",
 		"lint": "eslint --fix --max-warnings 0 --cache *.{ts,tsx}",
 		"format": "prettier --write --ignore-unknown --cache --cache-location=.prettier-cache .",
-		"spell-check": "cspell --show-suggestions --relative --no-must-find-files --cache .",
-		"prepare": "husky install"
+		"spell-check": "cspell --show-suggestions --relative --no-must-find-files --cache ."
 	},
 	"license": "MIT",
 	"devDependencies": {
@@ -29,6 +28,7 @@
 		"lint-staged": "^15.2.2",
 		"postcss": "^8.4.38",
 		"prettier": "^3.2.5",
+		"prettier-plugin-tailwindcss": "^0.5.13",
 		"tailwindcss": "^3.4.3",
 		"typescript": "^5.4.5",
 		"vite": "^5.2.8",
